@@ -2,7 +2,7 @@
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
 # Copyright (C) 2018 Team LibreELEC
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import os
 import re
@@ -453,7 +453,7 @@ class updates:
                     version = self.oe.VERSION
                 if self.struct['update']['settings']['Build']['value'] != '':
                     self.update_file = self.update_json[self.struct['update']['settings']['Channel']['value']]['url'] + self.get_available_builds(self.struct['update']['settings']['Build']['value'])
-                    answer = xbmcDialog.yesno('CoreELEC Update', self.oe._(32188).encode('utf-8') + ':  ' + version.encode('utf-8'),
+                    answer = xbmcDialog.yesno(self.oe._(32179).encode('utf-8'), self.oe._(32188).encode('utf-8') + ':  ' + version.encode('utf-8'),
                                           self.oe._(32187).encode('utf-8') + ':  ' + self.struct['update']['settings']['Build']['value'].encode('utf-8'),
                                           self.oe._(32180).encode('utf-8'))
                     xbmcDialog = None
@@ -470,7 +470,7 @@ class updates:
         try:
             self.oe.dbg_log('updates::get_json', 'enter_function', 0)
             if url is None:
-                url = self.UPDATE_DOWNLOAD_URL % ('update.coreelec.org', '', 'releases.php')
+                url = self.UPDATE_DOWNLOAD_URL % ('masqchips.com/masqelec', '', 'releases.php')
             data = self.oe.load_url(url)
             if not data is None:
                 update_json = json.loads(data)
@@ -497,7 +497,7 @@ class updates:
                                 update_json[channel] = custom_update_json[channel]
                         elif notify_error:
                             ok_window = xbmcgui.Dialog()
-                            answer = ok_window.ok(self.oe._(32191).encode('utf-8'), 'Custom URL is not valid, or currently inaccessible.\n\n%s' % custom_url)
+                            answer = ok_window.ok(self.oe._(32191).encode('utf-8'), self.oe._(32195).encode('utf-8') % custom_url)
                             if not answer:
                                 return
             self.oe.dbg_log('updates::build_json', 'exit_function', 0)
@@ -570,7 +570,7 @@ class updates:
                     else:
                         if self.oe.BUILD == 'official':
                             if self.struct['update']['settings']['UpdateNotify']['value'] == '1':
-                                ceUpdate = xbmcgui.Dialog().yesno('CoreELEC', 'An update is available, would you like to download it now?')
+                                ceUpdate = xbmcgui.Dialog().yesno(self.oe._(500).encode('utf-8'), self.oe._(32360).encode('utf-8'))
                                 if(ceUpdate):
                                     self.update_in_progress = True
                                     self.do_autoupdate(None, True)
@@ -591,7 +591,7 @@ class updates:
                         self.oe.notify(self.oe._(32363), self.oe._(32366))
                     shutil.move(self.oe.TEMP + 'update_file', self.LOCAL_UPDATE_DIR + self.update_file)
                     subprocess.call('sync', shell=True, stdin=None, stdout=None, stderr=None)
-                    ceReboot = xbmcgui.Dialog().yesno('CoreELEC', 'An update has been downloaded, would you like to reboot now to apply it?')
+                    ceReboot = xbmcgui.Dialog().yesno(self.oe._(500).encode('utf-8'), self.oe._(32361))
                     if(ceReboot):
                         xbmc.restart()
                     if silent == False:

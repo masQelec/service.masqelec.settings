@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: @DISTRONAME@ Configuration
-# Addon id: service.coreelec.settings
-# Addon Provider: CoreELEC
+# Addon id: service.masqelec.settings
+# Addon Provider: masQelec
 msgid ""
 msgstr ""
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgid ""
 msgstr "ONにすると、パワーセーブモードの間はBluetoothデバイスが無効になります"
 
 msgctxt "#721"
-msgid "Send CoreELEC debug info without logs to http://ix.io, and display the short URL"
+msgid "Send Kodi debug info without logs to http://ix.io, and display the short URL"
 msgstr ""
 
 msgctxt "#722"

@@ -2,7 +2,7 @@
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
 # Copyright (C) 2017 Team LibreELEC
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import os
 import xbmc
@@ -284,7 +284,7 @@ class connmanService(object):
                 10: {'Timeservers.Configuration': 'Timeservers'},
                 }
             self.oe = oeMain
-            self.winOeCon = oeWindows.mainWindow('service-CoreELEC-Settings-mainWindow.xml', self.oe.__cwd__, 'Default', oeMain=oeMain, isChild=True)
+            self.winOeCon = oeWindows.mainWindow('service-masQelec-Settings-mainWindow.xml', self.oe.__cwd__, 'Default', oeMain=oeMain, isChild=True)
             self.servicePath = servicePath
             self.oe.dictModules['connmanNetworkConfig'] = self
             self.service = dbus.Interface(self.oe.dbusSystemBus.get_object('net.connman', servicePath), 'net.connman.Service')
@@ -526,7 +526,7 @@ class connman:
                         'TetheringIdentifier': {
                             'order': 3,
                             'name': 32198,
-                            'value': 'CoreELEC-AP',
+                            'value': 'masQelec-AP',
                             'action': 'set_technologie',
                             'type': 'text',
                             'dbus': 'String',
@@ -1456,7 +1456,7 @@ class connman:
                 self.signal_receivers = []
                 self.NameOwnerWatch = None
                 self.parent = parent
-                self.wifiAgentPath = '/CoreELEC/agent_wifi'
+                self.wifiAgentPath = '/masQelec/agent_wifi'
                 self.oe.dbg_log('connman::monitor::__init__', 'exit_function', 0)
             except Exception, e:
                 self.oe.dbg_log('connman::monitor::__init__', 'ERROR: (' + repr(e) + ')')

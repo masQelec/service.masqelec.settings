@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 ################################# variables ##################################
 
@@ -25,8 +25,8 @@ import hashlib, binascii
 
 from xml.dom import minidom
 
-__author__ = 'CoreELEC'
-__scriptid__ = 'service.coreelec.settings'
+__author__ = 'masQelec'
+__scriptid__ = 'service.masqelec.settings'
 __addon__ = xbmcaddon.Addon(id=__scriptid__)
 __cwd__ = __addon__.getAddonInfo('path')
 __oe__ = sys.modules[globals()['__name__']]
@@ -81,7 +81,7 @@ sys.setdefaultencoding(encoding)
 ## load oeSettings modules
 
 import oeWindows
-xbmc.log('## CoreELEC Addon ## ' + unicode(__addon__.getAddonInfo('version')))
+xbmc.log('## masQelec Addon ## ' + unicode(__addon__.getAddonInfo('version')))
 
 class ProgressDialog:
     def __init__(self, label1=32181, label2=32182, label3=32183, minSampleInterval=1.0, maxUpdatesPerSecond=5):
@@ -124,7 +124,7 @@ class ProgressDialog:
     def getSpeed(self):
         return self.speed
 
-    def open(self, heading='CoreELEC', line1='', line2='', line3=''):
+    def open(self, heading='masQelec', line1='', line2='', line3=''):
         self.dialog = xbmcgui.DialogProgress()
         self.dialog.create(heading, line1, line2, line3)
         self.reset()
@@ -174,7 +174,7 @@ class ProgressDialog:
         return self.cancelled
 
 def _(code):
-    wizardComp = read_setting('coreelec', 'wizard_completed')
+    wizardComp = read_setting('masqelec', 'wizard_completed')
     if wizardComp == "True":
         codeNew = __addon__.getLocalizedString(code)
     else:
@@ -199,7 +199,7 @@ def _(code):
 def dbg_log(source, text, level=3):
     if level == 0 and os.environ.get('DEBUG', 'no') == 'no':
         return
-    xbmc.log('## CoreELEC Addon ## ' + source + ' ## ' + text, level)
+    xbmc.log('## masQelec Addon ## ' + source + ' ## ' + text, level)
     if level == 4:
         tracedata = traceback.format_exc()
         if tracedata != "None\n":
@@ -564,7 +564,7 @@ def stop_service():
             module = dictModules[strModule]
             if hasattr(module, 'stop_service') and module.ENABLED:
                 module.stop_service()
-        xbmc.log('## CoreELEC Addon ## STOP SERVICE DONE !')
+        xbmc.log('## masQelec Addon ## STOP SERVICE DONE !')
     except Exception, e:
         dbg_log('oe::stop_service', 'ERROR: (' + repr(e) + ')')
 
@@ -572,9 +572,9 @@ def stop_service():
 def openWizard():
     global winOeMain, __cwd__, __oe__
     try:
-        winOeMain = oeWindows.wizard('service-CoreELEC-Settings-wizard.xml', __cwd__, 'Default', oeMain=__oe__)
+        winOeMain = oeWindows.wizard('service-masQelec-Settings-wizard.xml', __cwd__, 'Default', oeMain=__oe__)
         winOeMain.doModal()
-        winOeMain = oeWindows.mainWindow('service-CoreELEC-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)  # None
+        winOeMain = oeWindows.mainWindow('service-masQelec-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)  # None
     except Exception, e:
         dbg_log('oe::openWizard', 'ERROR: (' + repr(e) + ')')
 
@@ -582,7 +582,7 @@ def openReleaseNotes():
     global winOeMain, __cwd__, __oe__
     try:
         RNOTES = load_file('/etc/release-notes')
-        RNOTES_TITLE = 'Release Notes: CoreELEC %s' % VERSION
+        RNOTES_TITLE = 'Release Notes: masQelec %s' % VERSION
 
         #TODO: fix so this can be done in a way that doesn't leave blank line
         regex = '\[TITLE\](.*?)\[\/TITLE\]'
@@ -633,7 +633,7 @@ def openConfigurationWindow():
                 timeLeft = "{0:.2f}".format((300 - PINnext)/60)
                 xbmcDialog.ok(_(32237), timeLeft + _(32238))
         if PINmatch == True:
-            winOeMain = oeWindows.mainWindow('service-CoreELEC-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)
+            winOeMain = oeWindows.mainWindow('service-masQelec-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)
             winOeMain.doModal()
             for strModule in dictModules:
                 dictModules[strModule].exit()
@@ -759,7 +759,7 @@ def write_setting(module, setting, value, main_node='settings'):
         xml_conf = load_config()
         xml_settings = xml_conf.getElementsByTagName(main_node)
         if len(xml_settings) == 0:
-            for xml_main in xml_conf.getElementsByTagName('coreelec'):
+            for xml_main in xml_conf.getElementsByTagName('masqelec'):
                 xml_sub = xml_conf.createElement(main_node)
                 xml_main.appendChild(xml_sub)
                 xml_settings = xml_conf.getElementsByTagName(main_node)
@@ -791,7 +791,7 @@ def write_setting(module, setting, value, main_node='settings'):
 
 def load_modules():
 
-  # # load coreelec configuration modules
+  # # load masqelec configuration modules
 
     try:
         global dictModules, __oe__, __cwd__, init_done
@@ -833,7 +833,7 @@ def split_dialog_text(text):
 
 def reboot_counter(seconds=10, title=' '):
     reboot_dlg = xbmcgui.DialogProgress()
-    reboot_dlg.create('CoreELEC %s' % title, ' ', ' ', ' ')
+    reboot_dlg.create('masQelec %s' % title, ' ', ' ', ' ')
     reboot_dlg.update(0)
     wait_time = seconds
     while seconds >= 0 and not reboot_dlg.iscanceled():
@@ -979,7 +979,7 @@ XBMC_USER_HOME = os.environ.get('XBMC_USER_HOME', '/storage/.kodi')
 CONFIG_CACHE = os.environ.get('CONFIG_CACHE', '/storage/.cache')
 USER_CONFIG = os.environ.get('USER_CONFIG', '/storage/.config')
 TEMP = '%s/temp/' % XBMC_USER_HOME
-winOeMain = oeWindows.mainWindow('service-CoreELEC-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)
+winOeMain = oeWindows.mainWindow('service-masQelec-Settings-mainWindow.xml', __cwd__, 'Default', oeMain=__oe__)
 if os.path.exists('/etc/machine-id'):
     SYSTEMID = load_file('/etc/machine-id')
 else:
@@ -1002,20 +1002,20 @@ else:
 ############################################################################################
 
 try:
-    configFile = '%s/userdata/addon_data/service.coreelec.settings/oe_settings.xml' % XBMC_USER_HOME
-    if not os.path.exists('%s/userdata/addon_data/service.coreelec.settings' % XBMC_USER_HOME):
+    configFile = '%s/userdata/addon_data/service.masqelec.settings/oe_settings.xml' % XBMC_USER_HOME
+    if not os.path.exists('%s/userdata/addon_data/service.masqelec.settings' % XBMC_USER_HOME):
         if os.path.exists('%s/userdata/addon_data/service.libreelec.settings' % XBMC_USER_HOME):
             shutil.copytree(('%s/userdata/addon_data/service.libreelec.settings' % XBMC_USER_HOME),
-                    ('%s/userdata/addon_data/service.coreelec.settings' % XBMC_USER_HOME))
+                    ('%s/userdata/addon_data/service.masqelec.settings' % XBMC_USER_HOME))
             with open(configFile,'r+') as f:
                 xml = f.read()
-                xml = xml.replace("<libreelec>","<coreelec>")
-                xml = xml.replace("</libreelec>","</coreelec>")
+                xml = xml.replace("<libreelec>","<masqelec>")
+                xml = xml.replace("</libreelec>","</masqelec>")
                 f.seek(0)
                 f.write(xml)
                 f.truncate()
         else:
-            os.makedirs('%s/userdata/addon_data/service.coreelec.settings' % XBMC_USER_HOME)
+            os.makedirs('%s/userdata/addon_data/service.masqelec.settings' % XBMC_USER_HOME)
     if not os.path.exists('%s/services' % CONFIG_CACHE):
         os.makedirs('%s/services' % CONFIG_CACHE)
 except:

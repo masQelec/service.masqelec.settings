@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import xbmc
 import xbmcgui
@@ -14,7 +14,7 @@ from threading import Thread
 
 xbmcDialog = xbmcgui.Dialog()
 
-__scriptid__ = 'service.coreelec.settings'
+__scriptid__ = 'service.masqelec.settings'
 __addon__ = xbmcaddon.Addon(id=__scriptid__)
 __cwd__ = __addon__.getAddonInfo('path')
 
@@ -289,17 +289,17 @@ class mainWindow(xbmcgui.WindowXMLDialog):
                         selectedItem.setProperty('value', xbmcKeyboard.getText())
                 elif strTyp == 'file':
                     xbmcDialog = xbmcgui.Dialog()
-                    returnValue = xbmcDialog.browse(1, 'CoreELEC', 'files', '', False, False, '/')
+                    returnValue = xbmcDialog.browse(1, self.oe._(500).encode('utf-8'), self.oe._(32357).encode('utf-8'), '', False, False, '/')
                     if returnValue != '' and returnValue != '/':
                         selectedItem.setProperty('value', unicode(returnValue))
                 elif strTyp == 'folder':
                     xbmcDialog = xbmcgui.Dialog()
-                    returnValue = xbmcDialog.browse(0, 'CoreELEC', 'files', '', False, False, '/storage')
+                    returnValue = xbmcDialog.browse(0, self.oe._(500).encode('utf-8'), self.oe._(32357).encode('utf-8'), '', False, False, '/storage')
                     if returnValue != '' and returnValue != '/':
                         selectedItem.setProperty('value', unicode(returnValue))
                 elif strTyp == 'ip':
                     xbmcDialog = xbmcgui.Dialog()
-                    returnValue = xbmcDialog.numeric(3, 'CoreELEC', strValue)
+                    returnValue = xbmcDialog.numeric(3, self.oe._(500).encode('utf-8'), strValue)
                     if returnValue != '':
                         if returnValue == '0.0.0.0':
                             selectedItem.setProperty('value', '')
@@ -309,7 +309,7 @@ class mainWindow(xbmcgui.WindowXMLDialog):
                     if strValue == 'None' or strValue == '':
                         strValue = '0'
                     xbmcDialog = xbmcgui.Dialog()
-                    returnValue = xbmcDialog.numeric(0, 'CoreELEC', strValue)
+                    returnValue = xbmcDialog.numeric(0, self.oe._(500).encode('utf-8'), strValue)
                     if returnValue == '':
                         returnValue = -1
                     if returnValue > -1:
@@ -695,7 +695,7 @@ class wizard(xbmcgui.WindowXMLDialog):
                     xbmc.executebuiltin(langAddon)
                     time.sleep(.5)
                     xbmc.executebuiltin('SendClick(10100,11)')
-                    self.oe.write_setting('coreelec', 'wizard_completed', 'True')
+                    self.oe.write_setting('masqelec', 'wizard_completed', 'True')
                     self.close()
                     xbmc.executebuiltin(lang_str)
             self.oe.dbg_log('wizard::onClick(' + unicode(controlID) + ')', 'exit_function', 0)

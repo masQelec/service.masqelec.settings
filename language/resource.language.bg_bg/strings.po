@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: @DISTRONAME@ Configuration
-# Addon id: service.coreelec.settings
-# Addon Provider: CoreELEC
+# Addon id: service.masqelec.settings
+# Addon Provider: masQelec
 msgid ""
 msgstr ""
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgid ""
 msgstr "Включете и Bluetooth устройствата ще бъдат изключвани при активиране на енергоспестяващ режим"
 
 msgctxt "#721"
-msgid "Send CoreELEC debug info without logs to http://ix.io, and display the short URL"
+msgid "Send Kodi debug info without logs to http://ix.io, and display the short URL"
 msgstr ""
 
 msgctxt "#722"
@@ -223,7 +223,7 @@ msgctxt "#743"
 msgid ""
 "Set to ON if you have copied private SSH keys to your HTPC and would like to"
 " improve security by disabling SSH username and password authentication."
-msgstr "Включете ако сте копирали частните SSH ключове в CoreELEC системата и желаете да повишите нивото на сигурност, като избегнете ползването на потребителско име и парола."
+msgstr "Включете ако сте копирали частните SSH ключове в Kodi системата и желаете да повишите нивото на сигурност, като избегнете ползването на потребителско име и парола."
 
 msgctxt "#744"
 msgid ""

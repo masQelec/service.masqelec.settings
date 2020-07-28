@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window id="3033">
-    <defaultcontrol always="true">1000</defaultcontrol>
-    <allowoverlay>no</allowoverlay>
-    <controls>
-        <control type="group">
-            <animation effect="zoom" center="960,540" end="102,102" time="0" condition="Integer.IsGreater(System.StereoscopicMode,0)">conditional</animation>
-            <control type="image">
-                <depth>DepthBackground</depth>
-                <aspectratio>scale</aspectratio>
-                <animation effect="fade" start="100" end="bg_alpha" time="0" condition="Player.HasMedia + String.IsEmpty(Window(videos).Property(PlayingBackgroundMedia))">Conditional</animation>
-                <animation effect="fade" start="0" end="100" time="300" condition="Window.Previous(fullscreenvideo) | Window.Previous(startup)">WindowOpen</animation>
-                <texture colordiffuse="button_focus">bg.jpg</texture>
-
-            </control>
-        </control>
-
-        <control type="group">
+    <defaultcontrol>1000</defaultcontrol>
+	<backgroundcolor>background</backgroundcolor>
+	<onload condition="String.IsEmpty(Skin.String(background_overlay))">Skin.SetString(background_overlay,1)</onload>
+	<controls>
+		<include>DefaultBackground</include>
+		<control type="multiimage">
+			<depth>DepthBackground</depth>
+			<include>FullScreenDimensions</include>
+			<aspectratio>scale</aspectratio>
+			<fadetime>600</fadetime>
+			<animation effect="zoom" center="auto" end="102,102" time="0" condition="Integer.IsGreater(System.StereoscopicMode,0)">conditional</animation>
+			<animation effect="fade" start="0" end="100" time="400">WindowOpen</animation>
+			<animation effect="fade" start="100" end="0" time="300">WindowClose</animation>
+			<animation effect="fade" time="400">VisibleChange</animation>
+			<imagepath background="true" colordiffuse="bg_overlay">$INFO[Skin.String(HomeFanart.path)]settings$INFO[Skin.String(HomeFanart.ext)]</imagepath>
+			<visible>!Player.HasMedia + !String.IsEmpty(Skin.String(HomeFanart.path))</visible>
+		</control>
+		<control type="group">
             <left>110</left>
             <!-- Main Menu (left) -->
             <control type="image">
@@ -29,7 +31,7 @@
                 <left>0</left>
                 <top>160</top>
                 <width>440</width>
-                <height>600</height>
+                <height>700</height>
                 <onleft>1500</onleft>
                 <pagecontrol>-</pagecontrol>
                 <scrolltime>300</scrolltime>
@@ -121,7 +123,7 @@
                         <textcolor>red</textcolor>
                         <align>left</align>
                         <aligny>center</aligny>
-                        <label>$ADDON[service.coreelec.settings 606]</label>
+                        <label>$ADDON[service.masqelec.settings 606]</label>
                     </control>
                     <control type="label">
                         <left>300</left>
@@ -141,7 +143,7 @@
                         <textcolor>red</textcolor>
                         <align>left</align>
                         <aligny>center</aligny>
-                        <label>$ADDON[service.coreelec.settings 607]</label>
+                        <label>$ADDON[service.masqelec.settings 607]</label>
                     </control>
                     <control type="label">
                         <left>300</left>
@@ -161,7 +163,7 @@
                         <textcolor>red</textcolor>
                         <align>left</align>
                         <aligny>center</aligny>
-                        <label>$ADDON[service.coreelec.settings 608]</label>
+                        <label>$ADDON[service.masqelec.settings 608]</label>
                     </control>
                     <control type="label">
                         <left>300</left>
@@ -180,7 +182,7 @@
                         <height>260</height>
                         <font>font10</font>
                         <textcolor>white</textcolor>
-                        <label>$ADDON[service.coreelec.settings 609]</label>
+                        <label>$ADDON[service.masqelec.settings 609]</label>
                     </control>
                     <control type="textbox">
                         <left>60</left>
@@ -189,7 +191,7 @@
                         <height>400</height>
                         <font>font10</font>
                         <textcolor>white</textcolor>
-                        <label>$ADDON[service.coreelec.settings 610]</label>
+                        <label>$ADDON[service.masqelec.settings 610]</label>
                     </control>
                     <control type="textbox">
                         <left>60</left>
@@ -444,7 +446,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 601]: [COLOR=white]$INFO[ListItem.Property(Interface)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 601]: [COLOR=white]$INFO[ListItem.Property(Interface)][/COLOR]</label>
                             <visible>!String.IsEmpty(ListItem.Property(Interface))</visible>
                         </control>
                         <!-- Connection Address -->
@@ -456,7 +458,7 @@
                             <font>font12</font>
                             <textcolor>red</textcolor>
                             <visible>String.IsEqual(ListItem.Property(State), online) | String.IsEqual(ListItem.Property(State), ready)</visible>
-                            <label>$ADDON[service.coreelec.settings 602]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 602]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
                         </control>
                         <!-- Method -->
                         <control type="label">
@@ -466,7 +468,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 603]: [COLOR=white]$INFO[ListItem.Property(Method)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 603]: [COLOR=white]$INFO[ListItem.Property(Method)][/COLOR]</label>
                         </control>
                         <!-- State -->
                         <control type="label">
@@ -476,7 +478,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 604]: [COLOR=white]$INFO[ListItem.Property(State)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 604]: [COLOR=white]$INFO[ListItem.Property(State)][/COLOR]</label>
                         </control>
                         <!-- Signal strength -->
                         <control type="progress">
@@ -606,7 +608,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 601]: [COLOR=white]$INFO[ListItem.Property(Interface)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 601]: [COLOR=white]$INFO[ListItem.Property(Interface)][/COLOR]</label>
                             <visible>!String.IsEmpty(ListItem.Property(Interface))</visible>
                         </control>
                         <!-- Connection Address -->
@@ -618,7 +620,7 @@
                             <font>font12</font>
                             <textcolor>red</textcolor>
                             <visible>String.IsEqual(ListItem.Property(State), online) | String.IsEqual(ListItem.Property(State), ready)</visible>
-                            <label>$ADDON[service.coreelec.settings 602]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 602]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
                         </control>
                         <!-- Method -->
                         <control type="label">
@@ -628,7 +630,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 603]: [COLOR=white]$INFO[ListItem.Property(Method)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 603]: [COLOR=white]$INFO[ListItem.Property(Method)][/COLOR]</label>
                         </control>
                         <!-- State -->
                         <control type="label">
@@ -638,7 +640,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 604]: [COLOR=white]$INFO[ListItem.Property(State)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 604]: [COLOR=white]$INFO[ListItem.Property(State)][/COLOR]</label>
                         </control>
                         <!-- Signal strength -->
                         <control type="progress">
@@ -868,7 +870,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 605]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 605]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
                         </control>
                         <!-- Connected State -->
                         <control type="label">
@@ -878,7 +880,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 32333][COLOR=white]$INFO[ListItem.Property(ConnectedState)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 32333][COLOR=white]$INFO[ListItem.Property(ConnectedState)][/COLOR]</label>
                         </control>
                         <!-- Paired Symbol (bottom right) -->
                         <control type="image">
@@ -1052,7 +1054,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 605]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 605]: [COLOR=white]$INFO[ListItem.Property(Address)][/COLOR]</label>
                         </control>
                         <!-- Connected State -->
                         <control type="label">
@@ -1062,7 +1064,7 @@
                             <height>20</height>
                             <font>font12</font>
                             <textcolor>red</textcolor>
-                            <label>$ADDON[service.coreelec.settings 32333][COLOR=white]$INFO[ListItem.Property(ConnectedState)][/COLOR]</label>
+                            <label>$ADDON[service.masqelec.settings 32333][COLOR=white]$INFO[ListItem.Property(ConnectedState)][/COLOR]</label>
                         </control>
                         <!-- Paired Symbol (bottom right) -->
                         <control type="image">

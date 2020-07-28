@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import os
 import re
@@ -205,7 +205,7 @@ class hardware:
                             'order': 1,
                             'name': 32430,
                             'InfoText': 792,
-                            'value': 'CoreELEC',
+                            'value': 500,
                             'action': 'set_cec',
                             'type': 'text',
                             },
@@ -463,7 +463,7 @@ class hardware:
                 else:
                     if 'hidden' in self.struct['cec']['settings']['cec_name']:
                         del self.struct['cec']['settings']['cec_name']['hidden']
-                    self.struct['cec']['settings']['cec_name']['value'] = self.oe.get_config_ini('cec_osd_name', 'CoreELEC')
+                    self.struct['cec']['settings']['cec_name']['value'] = self.oe.get_config_ini('cec_osd_name', self.oe._(500).encode('utf-8'))
 
                 cec_func_config = int(self.oe.get_config_ini('cec_func_config', '7f'), 16)
                 bit = self.struct['cec']['settings']['cec_all']['bit']

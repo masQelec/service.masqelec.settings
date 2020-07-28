@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 from __future__ import absolute_import, print_function, unicode_literals, division
 import os
@@ -111,7 +111,7 @@ class bluetooth:
                 self.oe.dbg_log('bluetooth::adapter_powered', 'set state (' + unicode(state) + ')', 0)
                 adapter_interface = dbus.Interface(self.oe.dbusSystemBus.get_object('org.bluez', adapter.object_path),
                                                    'org.freedesktop.DBus.Properties')
-                adapter_interface.Set('org.bluez.Adapter1', 'Alias', dbus.String(os.environ.get('HOSTNAME', 'coreelec')))
+                adapter_interface.Set('org.bluez.Adapter1', 'Alias', dbus.String(os.environ.get('HOSTNAME', 'masqelec')))
                 adapter_interface.Set('org.bluez.Adapter1', 'Powered', dbus.Boolean(state))
                 adapter_interface = None
             self.oe.dbg_log('bluetooth::adapter_powered', 'exit_function', 0)
@@ -571,7 +571,7 @@ class bluetooth:
     def open_pinkey_window(self, runtime=60, title=32343):
         try:
             self.oe.dbg_log('bluetooth::open_pinkey_window', 'enter_function', 0)
-            self.pinkey_window = oeWindows.pinkeyWindow('service-CoreELEC-Settings-getPasskey.xml', self.oe.__cwd__, 'Default')
+            self.pinkey_window = oeWindows.pinkeyWindow('service-masQelec-Settings-getPasskey.xml', self.oe.__cwd__, 'Default')
             self.pinkey_window.show()
             self.pinkey_window.set_title(self.oe._(title))
             self.pinkey_timer = pinkeyTimer(self, runtime)
@@ -627,8 +627,8 @@ class bluetooth:
                 self.signal_receivers = []
                 self.NameOwnerWatch = None
                 self.ObexNameOwnerWatch = None
-                self.btAgentPath = '/CoreELEC/bt_agent'
-                self.obAgentPath = '/CoreELEC/ob_agent'
+                self.btAgentPath = '/masQelec/bt_agent'
+                self.obAgentPath = '/masQelec/ob_agent'
                 self.parent = parent
                 self.oe.dbg_log('bluetooth::monitor::__init__', 'exit_function', 0)
             except Exception, e:
@@ -841,7 +841,7 @@ class bluetooth:
                     if interface['Status'] == 'active':
                         self.parent.download_start = time.time()
                         self.parent.download = xbmcgui.DialogProgress()
-                        self.parent.download.create('Bluetooth Filetransfer', '%s: %s' % (self.oe._(32181).encode('utf-8'),
+                        self.parent.download.create(self.oe._(32178).encode('utf-8'), '%s: %s' % (self.oe._(32181).encode('utf-8'),
                                                     self.parent.download_file), '', '')
                     else:
                         if hasattr(self.parent, 'download'):
@@ -852,7 +852,7 @@ class bluetooth:
                             del self.parent.download_start
                         if interface['Status'] == 'complete':
                             xbmcDialog = xbmcgui.Dialog()
-                            answer = xbmcDialog.yesno('Bluetooth Filetransfer', self.oe._(32383).encode('utf-8'))
+                            answer = xbmcDialog.yesno(self.oe._(32178).encode('utf-8'), self.oe._(32383).encode('utf-8'))
                             if answer == 1:
                                 fil = '%s/%s' % (self.oe.DOWNLOAD_DIR, self.parent.download_file)
                                 if 'image' in self.parent.download_type:
@@ -909,7 +909,7 @@ class bluetoothAgent(dbus.service.Object):
             self.oe.dbg_log('bluetooth::btAgent::AuthorizeService::uuid=', repr(uuid), 0)
             self.oe.input_request = True
             xbmcDialog = xbmcgui.Dialog()
-            answer = xbmcDialog.yesno('Bluetooth', 'Authorize service', 'Authorize service %s?' % (uuid))
+            answer = xbmcDialog.yesno('Bluetooth', self.oe._(32176).encode('utf-8'), self.oe._(32177).encode('utf-8') % (uuid))
             self.oe.dbg_log('bluetooth::btAgent::AuthorizeService::answer=', repr(answer), 0)
             self.busy()
             self.oe.dbg_log('bluetooth::btAgent::AuthorizeService', 'exit_function', 0)
@@ -943,7 +943,7 @@ class bluetoothAgent(dbus.service.Object):
             self.oe.dbg_log('bluetooth::btAgent::RequestPasskey::device=', repr(device), 0)
             self.oe.input_request = True
             xbmcDialog = xbmcgui.Dialog()
-            passkey = int(xbmcDialog.numeric(0, 'Enter passkey (number in 0-999999)', '0'))
+            passkey = int(xbmcDialog.numeric(0, self.oe._(32171).encode('utf-8'), '0'))
             self.oe.dbg_log('bluetooth::btAgent::RequestPasskey::passkey=', repr(passkey), 0)
             self.busy()
             self.oe.dbg_log('bluetooth::btAgent::RequestPasskey', 'exit_function', 0)
@@ -989,7 +989,7 @@ class bluetoothAgent(dbus.service.Object):
             self.oe.dbg_log('bluetooth::btAgent::RequestConfirmation::passkey=', repr(passkey), 0)
             self.oe.input_request = True
             xbmcDialog = xbmcgui.Dialog()
-            answer = xbmcDialog.yesno('Bluetooth', 'Request confirmation', 'Confirm passkey %06u' % (passkey))
+            answer = xbmcDialog.yesno('Bluetooth', self.oe._(32172).encode('utf-8'), self.oe._(32173).encode('utf-8') % (passkey))
             self.oe.dbg_log('bluetooth::btAgent::RequestConfirmation::answer=', repr(answer), 0)
             self.busy()
             self.oe.dbg_log('bluetooth::btAgent::RequestConfirmation', 'exit_function', 0)
@@ -1007,7 +1007,7 @@ class bluetoothAgent(dbus.service.Object):
             self.oe.dbg_log('bluetooth::btAgent::RequestAuthorization::device=', repr(device), 0)
             self.oe.input_request = True
             xbmcDialog = xbmcgui.Dialog()
-            answer = xbmcDialog.yesno('Bluetooth', 'Request authorization', 'Accept pairing?')
+            answer = xbmcDialog.yesno('Bluetooth', self.oe._(32174).encode('utf-8'), self.oe._(32175).encode('utf-8'))
             self.oe.dbg_log('bluetooth::btAgent::RequestAuthorization::answer=', repr(answer), 0)
             self.busy()
             self.oe.dbg_log('bluetooth::btAgent::RequestAuthorization', 'exit_function', 0)

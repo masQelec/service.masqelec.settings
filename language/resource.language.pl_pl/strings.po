@@ -1,10 +1,10 @@
 # Kodi Media Center language file
 # Addon Name: @DISTRONAME@ Configuration
-# Addon id: service.coreelec.settings
-# Addon Provider: CoreELEC
+# Addon id: service.masqelec.settings
+# Addon Provider: masQelec
 msgid ""
 msgstr ""
-"Project-Id-Version: CoreELEC Settings Add-on\n"
+"Project-Id-Version: Kodi Settings Add-on\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -123,7 +123,7 @@ msgid ""
 msgstr "Włączenie opcji spowoduje wyłączenie urządzeń bluetooth w trybach oszczędzania energii "
 
 msgctxt "#721"
-msgid "Send CoreELEC debug info without logs to http://ix.io, and display the short URL"
+msgid "Send Kodi debug info without logs to http://ix.io, and display the short URL"
 msgstr ""
 
 msgctxt "#722"

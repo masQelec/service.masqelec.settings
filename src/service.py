@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import oe
 import xbmc
@@ -20,7 +20,7 @@ class service_thread(threading.Thread):
             oeMain.dbg_log('_service_::__init__', 'enter_function', 0)
             self.oe = oeMain
             self.wait_evt = threading.Event()
-            self.socket_file = '/var/run/service.coreelec.settings.sock'
+            self.socket_file = '/var/run/service.masqelec.settings.sock'
             self.sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             self.sock.setblocking(1)
             if os.path.exists(self.socket_file):
@@ -50,7 +50,7 @@ class service_thread(threading.Thread):
     def run(self):
         try:
             self.oe.dbg_log('_service_::run', 'enter_function', 0)
-            if self.oe.read_setting('coreelec', 'wizard_completed') == None:
+            if self.oe.read_setting('masqelec', 'wizard_completed') == None:
                 threading.Thread(target=self.oe.openWizard).start()
             elif self.oe.BOOT_HINT == 'UPDATE' and self.oe.HAS_RNOTES:
                 threading.Thread(target=self.oe.openReleaseNotes).start()

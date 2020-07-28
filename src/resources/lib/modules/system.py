@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
 import os
 import re
@@ -522,7 +522,7 @@ class system:
         try:
             self.oe.dbg_log('system::ask_sure_reset', 'enter_function', 0)
             xbmcDialog = xbmcgui.Dialog()
-            answer = xbmcDialog.yesno(part + ' Reset', self.oe._(32326).encode('utf-8'), self.oe._(32328).encode('utf-8'))
+            answer = xbmcDialog.yesno(part + self.oe._(32322).encode('utf-8'), self.oe._(32326).encode('utf-8'), self.oe._(32328).encode('utf-8'))
             if answer == 1:
                 if self.oe.reboot_counter(30, self.oe._(32323)) == 1:
                     return 1
@@ -564,13 +564,13 @@ class system:
                     if self.total_backup_size > free_space:
                         txt = self.oe.split_dialog_text(self.oe._(32379).encode('utf-8'))
                         xbmcDialog = xbmcgui.Dialog()
-                        answer = xbmcDialog.ok('Backup', txt[0], txt[1], txt[2])
+                        answer = xbmcDialog.ok(self.oe._(32371).encode('utf-8'), txt[0], txt[1], txt[2])
                         return 0
                 except:
                     pass
 
                 self.backup_dlg = xbmcgui.DialogProgress()
-                self.backup_dlg.create('CoreELEC', self.oe._(32375).encode('utf-8'), ' ', ' ')
+                self.backup_dlg.create(self.oe._(500).encode('utf-8'), self.oe._(32375).encode('utf-8'), ' ', ' ')
                 if not os.path.exists(self.BACKUP_DESTINATION):
                     os.makedirs(self.BACKUP_DESTINATION)
                 self.backup_file = self.oe.timestamp() + '.tar'
@@ -605,7 +605,7 @@ class system:
             if not os.path.isfile(restore_file_path):
                 txt = self.oe.split_dialog_text(self.oe._(32374).encode('utf-8'))
                 xbmcDialog = xbmcgui.Dialog()
-                answer = xbmcDialog.ok('Restore', txt[0], txt[1], txt[2])
+                answer = xbmcDialog.ok(self.oe._(32359).encode('utf-8'), txt[0], txt[1], txt[2])
                 return
             restore_file_name = restore_file_path.split('/')[-1]
             match = re.match('.*(?P<time_stamp>\d{14}).*\.tar', restore_file_path)
@@ -632,11 +632,11 @@ class system:
             else:
                 txt = self.oe.split_dialog_text(self.oe._(32379).encode('utf-8'))
                 xbmcDialog = xbmcgui.Dialog()
-                answer = xbmcDialog.ok('Restore', txt[0], txt[1], txt[2])
+                answer = xbmcDialog.ok(self.oe._(32359).encode('utf-8'), txt[0], txt[1], txt[2])
             if copy_success == 1:
                 txt = self.oe.split_dialog_text(self.oe._(32380).encode('utf-8'))
                 xbmcDialog = xbmcgui.Dialog()
-                answer = xbmcDialog.yesno('Restore', txt[0], txt[1], txt[2])
+                answer = xbmcDialog.yesno(self.oe._(32359).encode('utf-8'), txt[0], txt[1], txt[2])
                 if answer == 1:
                     if self.oe.reboot_counter(10, self.oe._(32371)) == 1:
                         self.oe.winOeMain.close()

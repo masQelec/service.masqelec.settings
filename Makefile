@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
+# Copyright (C) 2018-present Team Core (https://coreelec.org)
 
-ADDON_NAME=service.coreelec.settings
+ADDON_NAME=service.masqelec.settings
 ADDON_VERSION=9.0.0
-DISTRONAME:=CoreELEC
+DISTRONAME:=masQelec
 
 SHELL=/bin/bash
 BUILDDIR=build
@@ -53,9 +53,9 @@ $(BUILDDIR)/$(ADDON_NAME)/resources/skins: $(BUILDDIR)/$(ADDON_NAME)/resources/s
 
 $(BUILDDIR)/$(ADDON_NAME)/resources/skins/Default/media:
 	mkdir -p $(BUILDDIR)/$(ADDON_NAME)/resources/skins/Default/media
-	cp textures/$(DISTRONAME)/*.{png,jpg} $(BUILDDIR)/$(ADDON_NAME)/resources/skins/Default/media
+	cp textures/$(DISTRONAME)/*.png $(BUILDDIR)/$(ADDON_NAME)/resources/skins/Default/media
 	mkdir -p $(BUILDDIR)/$(ADDON_NAME)/resources/skins/skin.estuary/media
-	cp textures/$(DISTRONAME)/*.{png,jpg} $(BUILDDIR)/$(ADDON_NAME)/resources/skins/skin.estuary/media
+	cp textures/$(DISTRONAME)/*.png $(BUILDDIR)/$(ADDON_NAME)/resources/skins/skin.estuary/media
 
 $(BUILDDIR)/$(ADDON_NAME)/resources/language:
 	mkdir -p $(BUILDDIR)/$(ADDON_NAME)/resources/language
