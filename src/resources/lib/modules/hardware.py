@@ -10,6 +10,7 @@ import oeWindows
 import threading
 import subprocess
 import shutil
+import platform
 
 # CEC Wake Up flags from u-boot(bl301)
 CEC_FUNC_MASK = 0
@@ -384,6 +385,20 @@ class hardware:
         finally:
             return ret
 
+    def check_SoC_id(self, id=''):
+        try:
+            self.oe.dbg_log('hardware::check_SoC', 'enter_function', 0)
+            ret = False
+            cpu_serial = [line for line in open("/proc/cpuinfo", 'r') if 'Serial' in line]
+            cpu_id = [x.strip() for x in cpu_serial[0].split(':')][1]
+            if int(cpu_id[:2], 16) >= id:
+                ret = True
+            self.oe.dbg_log('hardware::check_SoC', 'exit_function, ret: %s' % ret, 0)
+        except Exception, e:
+            self.oe.dbg_log('hardware::check_SoC', 'ERROR: (' + repr(e) + ')')
+        finally:
+            return ret
+
     def run_inject_bl301(self, parameter=''):
         try:
             self.oe.dbg_log('hardware::run_inject_bl301', 'enter_function, parameter: %s' % parameter, 0)
@@ -404,7 +419,9 @@ class hardware:
         try:
             self.oe.dbg_log('hardware::inject_check_compatibility', 'enter_function', 0)
             ret = False
-            if os.path.exists('/usr/sbin/inject_bl301'):
+            platform_version = platform.release().split('.')
+            if int(platform_version[0]) >= 4 and int(platform_version[1]) >= 9 and \
+                os.path.exists('/usr/sbin/inject_bl301'):
                 if self.run_inject_bl301('-c') == 0:
                     ret = True
             self.oe.dbg_log('hardware::inject_check_compatibility', 'exit_function', 0)
@@ -416,6 +433,7 @@ class hardware:
     def load_values(self):
         try:
             self.oe.dbg_log('hardware::load_values', 'enter_function', 0)
+            hide_power_section = True
 
             if not os.path.exists('/sys/class/fan'):
                 self.struct['fan']['hidden'] = 'true'
@@ -430,6 +448,7 @@ class hardware:
             if not os.path.exists('/sys/firmware/devicetree/base/leds/blueled'):
                 self.struct['power']['settings']['heartbeat']['hidden'] = 'true'
             else:
+                hide_power_section = False
                 if 'hidden' in self.struct['power']['settings']['heartbeat']:
                     del self.struct['power']['settings']['heartbeat']['hidden']
                 heartbeat = self.oe.get_config_ini('heartbeat', '1')
@@ -443,6 +462,7 @@ class hardware:
                 self.struct['power']['settings']['inject_bl301']['hidden'] = 'true'
                 self.struct['power']['settings']['inject_bl301']['value'] = '0'
             else:
+                hide_power_section = False
                 if 'hidden' in self.struct['power']['settings']['inject_bl301']:
                     del self.struct['power']['settings']['inject_bl301']['hidden']
                 if os.path.exists('/run/bl301_injected'):
@@ -480,6 +500,7 @@ class hardware:
             if not power_setting_visible:
                 self.struct['power']['settings']['remote_power']['hidden'] = 'true'
             else:
+                hide_power_section = False
                 if 'hidden' in self.struct['power']['settings']['remote_power']:
                     del self.struct['power']['settings']['remote_power']['hidden']
 
@@ -502,6 +523,7 @@ class hardware:
 
             wol = self.oe.get_config_ini('wol', '0')
             if any("stmmac" in s for s in os.listdir('/sys/bus/mdio_bus/drivers/RTL8211F Gigabit Ethernet')):
+                hide_power_section = False
                 if wol == '' or "0" in wol:
                     self.struct['power']['settings']['wol']['value'] = '0'
                 if "1" in wol:
@@ -512,9 +534,11 @@ class hardware:
                     self.oe.set_config_ini("wol", "0")
 
 
-            if not power_setting_visible:
+            dtname = self.oe.get_dtname()
+            if not power_setting_visible or not self.check_SoC_id(0x28) or 'odroid_n2' in dtname:
                 self.struct['power']['settings']['usbpower']['hidden'] = 'true'
             else:
+                hide_power_section = False
                 if 'hidden' in self.struct['power']['settings']['usbpower']:
                     del self.struct['power']['settings']['usbpower']['hidden']
 
@@ -567,6 +591,9 @@ class hardware:
                 self.struct['hdd']['settings']['disk_idle']['value'] = disk_idle_time["name"]
 
             self.struct['hdd']['settings']['disk_idle']['values'] = disk_idle_times_names
+
+            if hide_power_section:
+                self.struct['power']['hidden'] = 'true'
 
             self.oe.dbg_log('hardware::load_values', 'exit_function', 0)
         except Exception, e:
