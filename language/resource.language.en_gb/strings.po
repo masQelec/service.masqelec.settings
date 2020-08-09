@@ -199,7 +199,7 @@ msgid "Set the password for Samba sharing"
 msgstr ""
 
 msgctxt "#742"
-msgid "Set to ON to enable the embedded SSH server. The SSH console can be accessed with username 'root' and password '@ROOT_PASSWORD@'."
+msgid "Set to ON to enable the embedded SSH server."
 msgstr ""
 
 msgctxt "#743"

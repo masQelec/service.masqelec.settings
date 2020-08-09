@@ -199,8 +199,8 @@ msgid "Set the password for Samba sharing"
 msgstr "Fijar la contraseña para compartir Samba"
 
 msgctxt "#742"
-msgid "Set to ON to enable the embedded SSH server. The SSH console can be accessed with username 'root' and password '@ROOT_PASSWORD@'."
-msgstr "Active esta función para habilitar el servidor SSH. La consola puede ser accedida con el usuario 'root' y la contraseña '@ROOT_PASSWORD@'."
+msgid "Set to ON to enable the embedded SSH server."
+msgstr "Active esta función para habilitar el servidor SSH."
 
 msgctxt "#743"
 msgid "Set to ON if you have copied private SSH keys to your HTPC and would like to improve security by disabling SSH username and password authentication."
