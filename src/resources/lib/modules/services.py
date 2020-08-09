@@ -177,6 +177,7 @@ class services:
                                 },
                             'InfoText': 743,
                             },
+                        },
                     },
                 'avahi': {
                     'order': 3,
