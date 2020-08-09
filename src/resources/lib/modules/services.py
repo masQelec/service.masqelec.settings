@@ -165,18 +165,6 @@ class services:
                             'type': 'bool',
                             'InfoText': 742,
                             },
-                        'ssh_secure': {
-                            'order': 2,
-                            'name': 32203,
-                            'value': None,
-                            'action': 'initialize_ssh',
-                            'type': 'bool',
-                            'parent': {
-                                'entry': 'ssh_autostart',
-                                'value': ['1'],
-                                },
-                            'InfoText': 743,
-                            },
                         },
                     },
                 'avahi': {
@@ -324,9 +312,7 @@ class services:
 
             if os.path.isfile(self.SSH_DAEMON):
                 self.struct['ssh']['settings']['ssh_autostart']['value'] = self.oe.get_service_state('sshd')
-                self.struct['ssh']['settings']['ssh_secure']['value'] = self.oe.get_service_option('sshd', 'SSHD_DISABLE_PW_AUTH',
-                        self.D_SSH_DISABLE_PW_AUTH).replace('true', '1').replace('false', '0').replace('"', '')
-
+                
                 # hide ssh settings if Kernel Parameter is set
 
                 cmd_file = open(self.KERNEL_CMD, 'r')
@@ -334,8 +320,6 @@ class services:
                 if 'ssh' in cmd_args:
                     self.struct['ssh']['settings']['ssh_autostart']['value'] = '1'
                     self.struct['ssh']['settings']['ssh_autostart']['hidden'] = 'true'
-                    self.struct['ssh']['settings']['ssh_secure']['value'] = '1'
-                    self.struct['ssh']['settings']['ssh_secure']['hidden'] = 'true'
                 cmd_file.close()
             else:
                 self.struct['ssh']['hidden'] = 'true'
