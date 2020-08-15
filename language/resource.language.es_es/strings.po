@@ -919,8 +919,8 @@ msgid "Sharing and Remote Access"
 msgstr "Compartir y Acceso Remoto"
 
 msgctxt "#32312"
-msgid "@DISTRONAME@ also supports SSH for remote access. This is for advanced users who wish to interact with @DISTRONAME@'s underlying operating system. The default user is [COLOR red]root[/COLOR] and the default password is [COLOR red]@ROOT_PASSWORD@[/COLOR]."
-msgstr "@DISTRONAME@ soporta SSH para acceso remoto. Esto es para usuarios avanzados que desean interactuar con el sistema operativo de @DISTRONAME@. El usuario por defecto es [COLOR red]root[/COLOR]  y la contraseña por defecto es [COLOR red]@ROOT_PASSWORD@[/COLOR]."
+msgid "@DISTRONAME@ also supports SSH for remote access. This is for advanced users who wish to interact with @DISTRONAME@'s underlying operating system."
+msgstr "@DISTRONAME@ soporta SSH para acceso remoto. Esto es para usuarios avanzados que desean interactuar con el sistema operativo de @DISTRONAME@."
 
 msgctxt "#32313"
 msgid "In order to share your files between your computers @DISTRONAME@ has incorporated a samba server. This samba server can be integrated into your local network by accessing it in a familiar way with Finder or Windows Explorer."

@@ -55,7 +55,7 @@ services = {
     'D_SAMBA_AUTOSHARE': '1',
     'SSH_DAEMON': '/usr/sbin/sshd',
     'OPT_SSH_NOPASSWD': "-o 'PasswordAuthentication no'",
-    'D_SSH_DISABLE_PW_AUTH': '0',
+    'D_SSH_DISABLE_PW_AUTH': '1',
     'AVAHI_DAEMON': '/usr/sbin/avahi-daemon',
     'CRON_DAEMON': '/sbin/crond',
     }

@@ -931,7 +931,7 @@ msgid "Sharing and Remote Access"
 msgstr ""
 
 msgctxt "#32312"
-msgid "@DISTRONAME@ also supports SSH for remote access. This is for advanced users who wish to interact with @DISTRONAME@'s underlying operating system. The default user is [COLOR red]root[/COLOR] and the default password is [COLOR red]@ROOT_PASSWORD@[/COLOR]."
+msgid "@DISTRONAME@ also supports SSH for remote access. This is for advanced users who wish to interact with @DISTRONAME@'s underlying operating system."
 msgstr ""
 
 msgctxt "#32313"
