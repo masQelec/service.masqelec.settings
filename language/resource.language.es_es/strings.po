@@ -110,6 +110,10 @@ msgctxt "#715"
 msgid "Set to ON and an on-screen notification will be displayed when a new update is available"
 msgstr "Active esta función y se mostrará una notificación cuando una nueva versión esté disponible."
 
+msgctxt "#716"
+msgid "Update to the next stable release instead of remaining on nightly builds, when the next stable release is ready."
+msgstr "Actualice a la próxima versión estable en lugar de permanecer en las compilaciones nocturnas, cuando la próxima versión estable esté lista."
+
 msgctxt "#718"
 msgid "Send boot config files from /flash, kodi.log, kernel log and Samba configs to http://ix.io, and display the short URL"
 msgstr "Enviar archivos de configuración de arranque de /flash, kodi.log, registro kernel y configuraciones de Samba a http://ix.io, y mostrar URL corta"
@@ -350,6 +354,18 @@ msgctxt "#796"
 msgid "Enable/Disable CEC Wake-Up by the device become active route"
 msgstr "Activar/Desactivar CEC Wake-Up por el dispositivo se convierte en ruta activa"
 
+msgctxt "#797"
+msgid "Enable/Disable HDD parking on power off/suspend"
+msgstr "Habilitar/Deshabilitar el parking de HDD al apagar/suspender"
+
+msgctxt "#798"
+msgid "Time in seconds to wait for the HDD to spin down when parking"
+msgstr "Tiempo en segundos para esperar a que el disco duro gire al parking"
+
+msgctxt "#799"
+msgid "Time in minutes/hours until the HDD should enter suspend mode"
+msgstr "Tiempo en minutos/horas hasta que el disco duro debe entrar en modo de suspensión"
+
 msgctxt "#32001"
 msgid "Services"
 msgstr "Servicios"
@@ -449,6 +465,10 @@ msgstr "actualización de %s a %s"
 msgctxt "#32029"
 msgid "up to date: %s"
 msgstr "está actualizado: %s"
+
+msgctxt "#32030"
+msgid "Update To Next Stable"
+msgstr "Actualizar al siguiente estable"
 
 msgctxt "#32100"
 msgid "Connections"
@@ -740,7 +760,7 @@ msgstr "Habilitar Samba"
 
 msgctxt "#32205"
 msgid "Enable SSH"
-msgstr "Habilitar SSH"
+msgstr "Habilitar soporte remoto SSH"
 
 msgctxt "#32206"
 msgid "Enable Avahi (Zeroconf)"
@@ -1237,6 +1257,18 @@ msgstr "Modos VESA"
 msgctxt "#32421"
 msgid "CPU governor"
 msgstr "Gestión de la CPU"
+
+msgctxt "#32422"
+msgid "Parking"
+msgstr "Parking"
+
+msgctxt "#32423"
+msgid "Parking Time"
+msgstr "Tiempo de Parking"
+
+msgctxt "#32424"
+msgid "Idle Time"
+msgstr "Tiempo de inactividad"
 
 msgctxt "#32430"
 msgid "Device OSD Name"
