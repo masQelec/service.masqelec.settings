@@ -51,7 +51,7 @@ msgid "Architecture: "
 msgstr ""
 
 msgctxt "#609"
-msgid "Kodi is created by a global team of Linux and Kodi enthusiasts who contribute time and effort to manage the project, write code, and provide support. We have fun making it. We hope you have fun using it!"
+msgid "masQelec is created by a global team of Linux and Kodi enthusiasts who contribute time and effort to manage the project, write code, and provide support. We have fun making it. We hope you have fun using it!"
 msgstr ""
 
 msgctxt "#610"
