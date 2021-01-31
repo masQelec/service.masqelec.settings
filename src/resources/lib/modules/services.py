@@ -32,7 +32,7 @@ class services:
     OPT_SSH_NOPASSWD = None
     AVAHI_DAEMON = None
     CRON_DAEMON = None
-    menu = {'7': {
+    menu = {'6': {
         'name': 32001,
         'menuLoader': 'load_menu',
         'listTyp': 'list',
@@ -230,6 +230,30 @@ class services:
                                 },
                             'InfoText': 752,
                             },
+                        'connect_paired': {
+                            'order': 4,
+                            'name': 32406,
+                            'value': None,
+                            'action': 'connect_paired',
+                            'type': 'bool',
+                            'parent': {
+                                'entry': 'enabled',
+                                'value': ['1'],
+                                },
+                            'InfoText': 773,
+                            },
+                        'switch_audio_device': {
+                            'order': 5,
+                            'name': 32407,
+                            'value': None,
+                            'action': 'switch_audio_device',
+                            'type': 'bool',
+                            'parent': {
+                                'entry': 'enabled',
+                                'value': ['1'],
+                                },
+                            'InfoText': 774,
+                            },
                         },
                     },
                 }
@@ -350,6 +374,16 @@ class services:
                     else:
                         self.struct['bluez']['settings']['obex_enabled']['hidden'] = True
                         self.struct['bluez']['settings']['obex_root']['hidden'] = True
+
+                    value = self.oe.read_setting('bluetooth', 'connect_paired')
+                    if not value:
+                        value = '1'
+                    self.struct['bluez']['settings']['connect_paired']['value'] = value
+
+                    value = self.oe.read_setting('bluetooth', 'switch_audio_device')
+                    if not value:
+                        value = '1'
+                    self.struct['bluez']['settings']['switch_audio_device']['value'] = value
                 else:
                     self.struct['bluez']['hidden'] = 'true'
 
@@ -457,6 +491,8 @@ class services:
                 self.set_value(kwargs['listItem'])
             state = 1
             options = {}
+            options['CONNECT_PAIRED'] = '%s' % self.struct['bluez']['settings']['connect_paired']['value']
+            options['SWITCH_AUDIO_DEVICE'] = '%s' % self.struct['bluez']['settings']['switch_audio_device']['value']
             if self.struct['bluez']['settings']['enabled']['value'] != '1':
                 state = 0
                 self.struct['bluez']['settings']['obex_enabled']['hidden'] = True
@@ -491,6 +527,32 @@ class services:
         except Exception, e:
             self.oe.set_busy(0)
             self.oe.dbg_log('services::init_obex', 'ERROR: (' + repr(e) + ')', 4)
+
+    def connect_paired(self, **kwargs):
+        try:
+            self.oe.dbg_log('services::connect_paired', 'enter_function', 0)
+            self.oe.set_busy(1)
+            if 'listItem' in kwargs:
+                self.set_value(kwargs['listItem'])
+            self.oe.write_setting('bluetooth', 'connect_paired', self.struct['bluez']['settings']['connect_paired']['value'])
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::connect_paired', 'exit_function', 0)
+        except Exception as e:
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::connect_paired', 'ERROR: (' + repr(e) + ')', 4)
+
+    def switch_audio_device(self, **kwargs):
+        try:
+            self.oe.dbg_log('services::switch_audio_device', 'enter_function', 0)
+            self.oe.set_busy(1)
+            if 'listItem' in kwargs:
+                self.set_value(kwargs['listItem'])
+            self.oe.write_setting('bluetooth', 'switch_audio_device', self.struct['bluez']['settings']['switch_audio_device']['value'])
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::switch_audio_device', 'exit_function', 0)
+        except Exception as e:
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::switch_audio_device', 'ERROR: (' + repr(e) + ')', 4)
 
     def exit(self):
         try:

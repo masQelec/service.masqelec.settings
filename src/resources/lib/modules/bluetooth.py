@@ -15,7 +15,7 @@ import oeWindows
 
 class bluetooth:
 
-    menu = {'6': {
+    menu = {'7': {
         'name': 32331,
         'menuLoader': 'menu_connections',
         'listTyp': 'btlist',
@@ -49,6 +49,32 @@ class bluetooth:
     def start_service(self):
         try:
             self.oe.dbg_log('bluetooth::start_service', 'enter_function', 0)
+
+            default_audio_device = self.oe.read_setting('bluetooth', 'default_audio_device')
+
+            if default_audio_device:
+                self.oe.write_setting('bluetooth', 'default_audio_device', '')
+                query = {"method": "Settings.SetSettingValue",
+                         "params": {"setting": "audiooutput.audiodevice", "value": default_audio_device}}
+                if self.oe.jsonrpc(query):
+                    self.oe.dbg_log('bluetooth::start_service', 'Changed audio device to default %s'
+                        % default_audio_device, 0)
+                else:
+                    self.oe.dbg_log('bluetooth::start_service', 'Failed to change audio device to %s' % default_audio_device, 0)
+
+            passthrough = self.oe.read_setting('bluetooth', 'passthrough')
+
+            if passthrough:
+                self.oe.write_setting('bluetooth', 'passthrough', '')
+                query = {"method": "Settings.SetSettingValue",
+                         "params": {"setting": "audiooutput.passthrough", "value": True}}
+                time.sleep(1)
+                if self.oe.jsonrpc(query):
+                    self.oe.dbg_log('bluetooth::start_service', 'Changed passthrough to %s'
+                        % passthrough, 0)
+                else:
+                    self.oe.dbg_log('bluetooth::start_service', 'Failed to change passthrough to %s' % passthrough, 0)
+
             if 'org.bluez' in self.oe.dbusSystemBus.list_names():
                 self.init_adapter()
             self.oe.dbg_log('bluetooth::start_service', 'exit_function', 0)
@@ -61,6 +87,9 @@ class bluetooth:
             if hasattr(self, 'discovery_thread'):
                 self.discovery_thread.stop()
                 del self.discovery_thread
+            if hasattr(self, 'connection_thread'):
+                self.connection_thread.stop()
+                del self.connection_thread
             if hasattr(self, 'dbusBluezAdapter'):
                 self.dbusBluezAdapter = None
             self.oe.dbg_log('bluetooth::stop_service', 'exit_function', 0)
@@ -73,6 +102,9 @@ class bluetooth:
             if hasattr(self, 'discovery_thread'):
                 self.discovery_thread.stop()
                 del self.discovery_thread
+            if hasattr(self, 'connection_thread'):
+                self.connection_thread.stop()
+                del self.connection_thread
             self.clear_list()
             self.visible = False
             self.oe.dbg_log('bluetooth::exit', 'exit_function', 0)
@@ -114,6 +146,10 @@ class bluetooth:
                 adapter_interface.Set('org.bluez.Adapter1', 'Alias', dbus.String(os.environ.get('HOSTNAME', 'masqelec')))
                 adapter_interface.Set('org.bluez.Adapter1', 'Powered', dbus.Boolean(state))
                 adapter_interface = None
+            connect_paired = self.oe.get_service_option('bluez', 'CONNECT_PAIRED', '1')
+            if connect_paired == '1' and not hasattr(self, 'connection_thread'):
+                self.connection_thread = connectionThread(self)
+                self.connection_thread.start()
             self.oe.dbg_log('bluetooth::adapter_powered', 'exit_function', 0)
         except Exception, e:
             self.oe.dbg_log('bluetooth::adapter_powered', 'ERROR: (' + repr(e) + ')', 4)
@@ -624,6 +660,7 @@ class bluetooth:
             try:
                 oeMain.dbg_log('bluetooth::monitor::__init__', 'enter_function', 0)
                 self.oe = oeMain
+                self.devices = {}
                 self.signal_receivers = []
                 self.NameOwnerWatch = None
                 self.ObexNameOwnerWatch = None
@@ -776,6 +813,63 @@ class bluetooth:
                         self.parent.close_pinkey_window()
                 if self.parent.visible:
                     self.parent.menu_connections()
+
+                for interface in interfaces:
+                    if 'org.bluez.' in interface:
+                        device = self.oe.dbusSystemBus.get_object('org.bluez', path)
+                        device_iface = dbus.Interface(device, dbus.PROPERTIES_IFACE)
+                        device_path = device_iface.Get(interface, 'Device')
+
+                        device_path = self.oe.dbusSystemBus.get_object('org.bluez', device_path)
+                        device = dbus.Interface(device_path, dbus.PROPERTIES_IFACE)
+
+                        Address = str(device.Get('org.bluez.Device1', 'Address'))
+                        Class = int(device.Get('org.bluez.Device1', 'Class'))
+
+                        if not Address in self.devices:
+                            self.devices[Address] = {}
+                            self.devices[Address]['Name'] = str(device.Get('org.bluez.Device1', 'Name'))
+                            self.devices[Address]['Class'] = Class
+                            self.devices[Address]['path'] = []
+                            self.oe.notify('Bluetooth', 'Connected to %s' % self.devices[Address]['Name'], 'bt')
+                            self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'Connected to %s (%s)'
+                                % (self.devices[Address]['Name'], Address), 0)
+
+                            switch_audio_device = self.oe.get_service_option('bluez', 'SWITCH_AUDIO_DEVICE', '1')
+                            if switch_audio_device == '1' and Class & (1 << 21):
+                                query = {"method": "Settings.GetSettingValue",
+                                         "params": {"setting": "audiooutput.audiodevice"}}
+                                response = self.oe.jsonrpc(query)
+
+                                if not 'PULSE' in response['value']:
+                                    self.oe.write_setting('bluetooth', 'default_audio_device', response['value'])
+
+                                    query = {"method": "Settings.GetSettingValue",
+                                             "params": {"setting": "audiooutput.passthrough"}}
+                                    response_passthrough = self.oe.jsonrpc(query)
+
+                                    query = {"method": "Settings.SetSettingValue",
+                                             "params": {"setting": "audiooutput.audiodevice", "value": "PULSE:Default"}}
+                                    if self.oe.jsonrpc(query):
+                                        self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'Changed audio device from %s to PULSE:Default'
+                                            % self.oe.read_setting('bluetooth', 'default_audio_device'), 0)
+                                    else:
+                                        self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'Failed to change audio device to PULSE:Default', 0)
+
+                                    if response_passthrough['value'] == True:
+                                        self.oe.write_setting('bluetooth', 'passthrough', 'true')
+
+                                        query = {"method": "Settings.SetSettingValue",
+                                                 "params": {"setting": "audiooutput.passthrough", "value": False}}
+                                        time.sleep(1)
+                                        if self.oe.jsonrpc(query):
+                                            self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'passthrough is turned on, turn it off', 0)
+                                        else:
+                                            self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'Failed to turn off passthrough', 0)
+
+                        self.devices[Address]['path'].append(path)
+                        break
+
                 self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'exit_function', 0)
             except Exception, e:
                 self.oe.dbg_log('bluetooth::monitor::InterfacesAdded', 'ERROR: (' + repr(e) + ')', 4)
@@ -789,6 +883,45 @@ class bluetooth:
                     self.parent.dbusBluezAdapter = None
                 if self.parent.visible and not hasattr(self.parent, 'discovery_thread'):
                     self.parent.menu_connections()
+
+                for Address in self.devices:
+                    if path in self.devices[Address]['path']:
+                        self.oe.notify('Bluetooth', 'Disconnected from %s' % self.devices[Address]['Name'], 'bt')
+                        self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'Device disconnect: %s'
+                            % self.devices[Address]['Name'], 0)
+
+                        if self.devices[Address]['Class'] & (1 << 21):
+                            query = {"method": "Settings.GetSettingValue",
+                                     "params": {"setting": "audiooutput.audiodevice"}}
+                            response = self.oe.jsonrpc(query)
+                            default_audio_device = self.oe.read_setting('bluetooth', 'default_audio_device')
+
+                            if 'PULSE' in response['value'] and default_audio_device:
+                                self.oe.write_setting('bluetooth', 'default_audio_device', '')
+                                query = {"method": "Settings.SetSettingValue",
+                                         "params": {"setting": "audiooutput.audiodevice", "value": default_audio_device}}
+                                if self.oe.jsonrpc(query):
+                                    self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'Changed audio device from PULSE:Default to %s'
+                                        % default_audio_device, 0)
+                                else:
+                                    self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'Failed to change audio device to %s' % default_audio_device, 0)
+
+                                passthrough = self.oe.read_setting('bluetooth', 'passthrough')
+
+                                if passthrough:
+                                    self.oe.write_setting('bluetooth', 'passthrough', '')
+                                    query = {"method": "Settings.SetSettingValue",
+                                             "params": {"setting": "audiooutput.passthrough", "value": True}}
+                                    time.sleep(1)
+                                    if self.oe.jsonrpc(query):
+                                        self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'Changed passthrough to %s'
+                                            % passthrough, 0)
+                                    else:
+                                        self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'Failed to change passthrough to %s' % passthrough, 0)
+
+                        del self.devices[Address]
+                        break
+
                 self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'exit_function', 0)
             except Exception, e:
                 self.oe.dbg_log('bluetooth::monitor::InterfacesRemoved', 'ERROR: (' + repr(e) + ')', 4)
@@ -1156,3 +1289,62 @@ class pinkeyTimer(threading.Thread):
             self.oe.dbg_log('bluetooth::pinkeyTimer::run', 'exit_function', 0)
         except Exception, e:
             self.oe.dbg_log('bluetooth::pinkeyTimer::run', 'ERROR: (' + repr(e) + ')', 4)
+
+class connectionThread(threading.Thread):
+
+    def __init__(self, parent):
+        try:
+            parent.oe.dbg_log('bluetooth::connectionThread::__init__', 'enter_function', 0)
+            self.parent = parent
+            self.oe = parent.oe
+            self.last_run = 0
+            self.stopped = False
+            threading.Thread.__init__(self)
+            self.oe.dbg_log('bluetooth::connectionThread::__init__', 'exit_function', 0)
+        except Exception as e:
+            self.oe.dbg_log('bluetooth::connectionThread::__init__', 'ERROR: (' + repr(e) + ')', 4)
+
+    def connect_reply_handler(self):
+        try:
+            self.oe.dbg_log('bluetooth::connectionThread::connect_reply_handler', 'enter_function', 0)
+            self.oe.dbg_log('bluetooth::connectionThread::connect_reply_handler', 'Connected to %s (%s)'
+                % (self.bt_device_name, self.bt_device_mac), 0)
+            if hasattr(self, 'connection_attempt_running'):
+                del self.connection_attempt_running
+            self.oe.dbg_log('bluetooth::connectionThread::connect_reply_handler', 'exit_function', 0)
+        except Exception as e:
+            self.oe.dbg_log('bluetooth::connectionThread::connect_reply_handler', 'ERROR: (' + repr(e) + ')', 4)
+
+    def connect_error_handler(self, error):
+        try:
+            self.oe.dbg_log('bluetooth::connectionThread::connect_error_handler', 'enter_function', 0)
+            self.oe.dbg_log('bluetooth::connectionThread::connect_error_handler', 'Failed to connect to %s (%s): (%s)'
+                % (self.bt_device_name, self.bt_device_mac, repr(error)), 0)
+            if hasattr(self, 'connection_attempt_running'):
+                del self.connection_attempt_running
+            self.oe.dbg_log('bluetooth::connectionThread::connect_error_handler', 'exit_function', 0)
+        except Exception as e:
+            self.oe.dbg_log('bluetooth::connectionThread::connect_error_handler', 'ERROR: (' + repr(e) + ')', 4)
+
+    def stop(self):
+        self.stopped = True
+
+    def run(self):
+        try:
+            self.oe.dbg_log('bluetooth::connectionThread::run', 'enter_function', 0)
+            self.dbusDevices = self.parent.get_devices()
+            for dbusDevice in self.dbusDevices:
+                if 'Connected' in self.dbusDevices[dbusDevice] and 'Paired' in self.dbusDevices[dbusDevice]:
+                    if self.dbusDevices[dbusDevice]['Connected'] == 0 and self.dbusDevices[dbusDevice]['Paired'] == 1:
+                        self.bt_device_mac = self.dbusDevices[dbusDevice]['Address']
+                        self.bt_device_name = self.dbusDevices[dbusDevice]['Name']
+                        self.oe.dbg_log('bluetooth::connectionThread::run', 'paired device %s (%s) not connected, try to connect now...'
+                            % (self.bt_device_name, self.bt_device_mac), 0)
+                        device = dbus.Interface(self.oe.dbusSystemBus.get_object('org.bluez', dbusDevice), 'org.bluez.Device1')
+                        self.connection_attempt_running = True
+                        device.Connect(reply_handler=self.connect_reply_handler, error_handler=self.connect_error_handler)
+                        while not self.stopped and hasattr(self, 'connection_attempt_running') and not xbmc.abortRequested:
+                            time.sleep(1)
+            self.oe.dbg_log('bluetooth::connectionThread::run', 'exit_function', 0)
+        except Exception as e:
+            self.oe.dbg_log('bluetooth::connectionThread::run', 'ERROR: (' + repr(e) + ')', 4)
