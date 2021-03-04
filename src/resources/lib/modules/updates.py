@@ -287,7 +287,11 @@ class updates:
         elif self.oe.PROJECT == "RPi":
             return self.get_hardware_flags_rpi()
         elif self.oe.PROJECT in ['Allwinner', 'Amlogic', 'Amlogic-ng', 'Rockchip']:
-            return self.oe.get_dtname()
+            dtname = self.oe.get_dtname()
+            if dtname == 'unknown':
+                xbmcDialog = xbmcgui.Dialog()
+                xbmcDialog.notification('CoreELEC DT-ID not found', ' Please update /flash/dtb.img!', xbmcgui.NOTIFICATION_WARNING, 30000)
+            return dtname
         else:
             self.oe.dbg_log('updates::get_hardware_flags', 'Project is %s, no hardware flag available' % self.oe.PROJECT, 0)
             return ""
@@ -622,16 +626,12 @@ class updates:
                 if not downloaded is None:
                     self.update_file = self.update_file.split('/')[-1]
                     if self.struct['update']['settings']['UpdateNotify']['value'] == '1':
-                        self.oe.notify(self.oe._(32363), self.oe._(32366))
+                        self.oe.notify(self.oe._(32363).encode('utf-8'), self.oe._(32366).encode('utf-8'))
                     shutil.move(self.oe.TEMP + 'update_file', self.LOCAL_UPDATE_DIR + self.update_file)
                     subprocess.call('sync', shell=True, stdin=None, stdout=None, stderr=None)
                     ceReboot = xbmcgui.Dialog().yesno(self.oe._(500).encode('utf-8'), self.oe._(32361))
                     if(ceReboot):
                         xbmc.restart()
-                    if silent == False:
-                        self.oe.winOeMain.close()
-                        time.sleep(1)
-                        xbmc.executebuiltin('Reboot')
                 else:
                     delattr(self, 'update_in_progress')
 
