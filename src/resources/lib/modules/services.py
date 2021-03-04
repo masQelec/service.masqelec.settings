@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2009-2013 Stephan Raue (stephan@openelec.tv)
 # Copyright (C) 2013 Lutz Fiebach (lufie@openelec.tv)
-# Copyright (C) 2018-present Team Core (https://coreelec.org)
+# Copyright (C) 2018-present Team CoreELEC (https://coreelec.org)
 
 import os
 import glob
@@ -10,7 +10,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-__scriptid__ = 'service.masqelec.settings'
+__scriptid__ = 'service.coreelec.settings'
 __addon__ = xbmcaddon.Addon(id=__scriptid__)
 xbmcDialog = xbmcgui.Dialog()
 
@@ -32,7 +32,7 @@ class services:
     OPT_SSH_NOPASSWD = None
     AVAHI_DAEMON = None
     CRON_DAEMON = None
-    menu = {'7': {
+    menu = {'6': {
         'name': 32001,
         'menuLoader': 'load_menu',
         'listTyp': 'list',
@@ -165,6 +165,30 @@ class services:
                             'type': 'bool',
                             'InfoText': 742,
                             },
+                        'ssh_secure': {
+                            'order': 2,
+                            'name': 32203,
+                            'value': None,
+                            'action': 'initialize_ssh',
+                            'type': 'bool',
+                            'parent': {
+                                'entry': 'ssh_autostart',
+                                'value': ['1'],
+                                },
+                            'InfoText': 743,
+                            },
+                        'ssh_passwd': {
+                            'order': 3,
+                            'name': 32209,
+                            'value': None,
+                            'action': 'do_sshpasswd',
+                            'type': 'button',
+                            'parent': {
+                                'entry': 'ssh_secure',
+                                'value': ['0'],
+                                },
+                            'InfoText': 746,
+                            },
                         },
                     },
                 'avahi': {
@@ -229,6 +253,30 @@ class services:
                                 'value': ['1'],
                                 },
                             'InfoText': 752,
+                            },
+                        'connect_paired': {
+                            'order': 4,
+                            'name': 32406,
+                            'value': None,
+                            'action': 'connect_paired',
+                            'type': 'bool',
+                            'parent': {
+                                'entry': 'enabled',
+                                'value': ['1'],
+                                },
+                            'InfoText': 773,
+                            },
+                        'switch_audio_device': {
+                            'order': 5,
+                            'name': 32407,
+                            'value': None,
+                            'action': 'switch_audio_device',
+                            'type': 'bool',
+                            'parent': {
+                                'entry': 'enabled',
+                                'value': ['1'],
+                                },
+                            'InfoText': 774,
                             },
                         },
                     },
@@ -312,7 +360,9 @@ class services:
 
             if os.path.isfile(self.SSH_DAEMON):
                 self.struct['ssh']['settings']['ssh_autostart']['value'] = self.oe.get_service_state('sshd')
-                
+                self.struct['ssh']['settings']['ssh_secure']['value'] = self.oe.get_service_option('sshd', 'SSHD_DISABLE_PW_AUTH',
+                        self.D_SSH_DISABLE_PW_AUTH).replace('true', '1').replace('false', '0').replace('"', '')
+
                 # hide ssh settings if Kernel Parameter is set
 
                 cmd_file = open(self.KERNEL_CMD, 'r')
@@ -350,6 +400,16 @@ class services:
                     else:
                         self.struct['bluez']['settings']['obex_enabled']['hidden'] = True
                         self.struct['bluez']['settings']['obex_root']['hidden'] = True
+
+                    value = self.oe.read_setting('bluetooth', 'connect_paired')
+                    if not value:
+                        value = '1'
+                    self.struct['bluez']['settings']['connect_paired']['value'] = value
+
+                    value = self.oe.read_setting('bluetooth', 'switch_audio_device')
+                    if not value:
+                        value = '1'
+                    self.struct['bluez']['settings']['switch_audio_device']['value'] = value
                 else:
                     self.struct['bluez']['hidden'] = 'true'
 
@@ -405,7 +465,13 @@ class services:
             state = 1
             options = {}
             if self.struct['ssh']['settings']['ssh_autostart']['value'] == '1':
-                options['SSH_ARGS'] = '"%s"' % self.OPT_SSH_NOPASSWD
+                if self.struct['ssh']['settings']['ssh_secure']['value'] == '1':
+                    val = 'true'
+                    options['SSH_ARGS'] = '"%s"' % self.OPT_SSH_NOPASSWD
+                else:
+                    val = 'false'
+                    options['SSH_ARGS'] = '""'
+                options['SSHD_DISABLE_PW_AUTH'] = '"%s"' % val
             else:
                 state = 0
             self.oe.set_service('sshd', options, state)
@@ -457,6 +523,8 @@ class services:
                 self.set_value(kwargs['listItem'])
             state = 1
             options = {}
+            options['CONNECT_PAIRED'] = '%s' % self.struct['bluez']['settings']['connect_paired']['value']
+            options['SWITCH_AUDIO_DEVICE'] = '%s' % self.struct['bluez']['settings']['switch_audio_device']['value']
             if self.struct['bluez']['settings']['enabled']['value'] != '1':
                 state = 0
                 self.struct['bluez']['settings']['obex_enabled']['hidden'] = True
@@ -492,6 +560,32 @@ class services:
             self.oe.set_busy(0)
             self.oe.dbg_log('services::init_obex', 'ERROR: (' + repr(e) + ')', 4)
 
+    def connect_paired(self, **kwargs):
+        try:
+            self.oe.dbg_log('services::connect_paired', 'enter_function', 0)
+            self.oe.set_busy(1)
+            if 'listItem' in kwargs:
+                self.set_value(kwargs['listItem'])
+            self.oe.write_setting('bluetooth', 'connect_paired', self.struct['bluez']['settings']['connect_paired']['value'])
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::connect_paired', 'exit_function', 0)
+        except Exception as e:
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::connect_paired', 'ERROR: (' + repr(e) + ')', 4)
+
+    def switch_audio_device(self, **kwargs):
+        try:
+            self.oe.dbg_log('services::switch_audio_device', 'enter_function', 0)
+            self.oe.set_busy(1)
+            if 'listItem' in kwargs:
+                self.set_value(kwargs['listItem'])
+            self.oe.write_setting('bluetooth', 'switch_audio_device', self.struct['bluez']['settings']['switch_audio_device']['value'])
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::switch_audio_device', 'exit_function', 0)
+        except Exception as e:
+            self.oe.set_busy(0)
+            self.oe.dbg_log('services::switch_audio_device', 'ERROR: (' + repr(e) + ')', 4)
+
     def exit(self):
         try:
             self.oe.dbg_log('services::exit', 'enter_function', 0)
@@ -502,17 +596,17 @@ class services:
     def do_wizard(self):
         try:
             self.oe.dbg_log('services::do_wizard', 'enter_function', 0)
-            self.oe.winOeMain.set_wizard_title(self.oe._(32311))
+            self.oe.winOeMain.set_wizard_title(self.oe._(32311).encode('utf-8'))
 
             # Enable samba
             self.struct['samba']['settings']['samba_autostart']['value'] = '1'
             self.initialize_samba()
 
             if hasattr(self, 'samba'):
-                self.oe.winOeMain.set_wizard_text(self.oe._(32313) + '[CR][CR]' + self.oe._(32312))
+                self.oe.winOeMain.set_wizard_text(self.oe._(32313).encode('utf-8') + '[CR][CR]' + self.oe._(32312).encode('utf-8'))
             else:
-                self.oe.winOeMain.set_wizard_text(self.oe._(32312))
-            self.oe.winOeMain.set_wizard_button_title(self.oe._(32316))
+                self.oe.winOeMain.set_wizard_text(self.oe._(32312).encode('utf-8'))
+            self.oe.winOeMain.set_wizard_button_title(self.oe._(32316).encode('utf-8'))
             self.set_wizard_buttons()
             self.oe.dbg_log('services::do_wizard', 'exit_function', 0)
         except Exception, e:
@@ -522,14 +616,14 @@ class services:
         try:
             self.oe.dbg_log('services::set_wizard_buttons', 'enter_function', 0)
             if self.struct['ssh']['settings']['ssh_autostart']['value'] == '1':
-                self.oe.winOeMain.set_wizard_radiobutton_1(self.oe._(32201), self, 'wizard_set_ssh', True)
+                self.oe.winOeMain.set_wizard_radiobutton_1(self.oe._(32201).encode('utf-8'), self, 'wizard_set_ssh', True)
             else:
-                self.oe.winOeMain.set_wizard_radiobutton_1(self.oe._(32201), self, 'wizard_set_ssh')
+                self.oe.winOeMain.set_wizard_radiobutton_1(self.oe._(32201).encode('utf-8'), self, 'wizard_set_ssh')
             if not 'hidden' in self.struct['samba']:
                 if self.struct['samba']['settings']['samba_autostart']['value'] == '1':
-                    self.oe.winOeMain.set_wizard_radiobutton_2(self.oe._(32200), self, 'wizard_set_samba', True)
+                    self.oe.winOeMain.set_wizard_radiobutton_2(self.oe._(32200).encode('utf-8'), self, 'wizard_set_samba', True)
                 else:
-                    self.oe.winOeMain.set_wizard_radiobutton_2(self.oe._(32200), self, 'wizard_set_samba')
+                    self.oe.winOeMain.set_wizard_radiobutton_2(self.oe._(32200).encode('utf-8'), self, 'wizard_set_samba')
             self.oe.dbg_log('services::set_wizard_buttons', 'exit_function', 0)
         except Exception, e:
             self.oe.dbg_log('services::set_wizard_buttons', 'ERROR: (%s)' % repr(e))
@@ -551,6 +645,8 @@ class services:
             cmd_file.close()
             self.initialize_ssh()
             self.load_values()
+            if self.struct['ssh']['settings']['ssh_autostart']['value'] == '1':
+                self.wizard_sshpasswd()
             self.set_wizard_buttons()
             self.oe.dbg_log('services::wizard_set_ssh', 'exit_function', 0)
         except Exception, e:
@@ -569,3 +665,48 @@ class services:
             self.oe.dbg_log('services::wizard_set_samba', 'exit_function', 0)
         except Exception, e:
             self.oe.dbg_log('services::wizard_set_samba', 'ERROR: (%s)' % repr(e))
+
+    def wizard_sshpasswd(self):
+        SSHresult = False
+        while SSHresult == False:
+            changeSSH = xbmcDialog.yesno(self.oe._(32209).encode('utf-8'), self.oe._(32210).encode('utf-8'), yeslabel=self.oe._(32213).encode('utf-8'), nolabel=self.oe._(32214).encode('utf-8'))
+            if changeSSH:
+                SSHresult = True
+            else:
+                changeSSHresult = self.do_sshpasswd()
+                if changeSSHresult:
+                    SSHresult = True
+        return
+
+    def do_sshpasswd(self, **kwargs):
+        try:
+            self.oe.dbg_log('system::do_sshpasswd', 'enter_function', 0)
+            SSHchange = False
+            newpwd = xbmcDialog.input(self.oe._(746).encode('utf-8'))
+            if newpwd:
+                if newpwd == "coreelec":
+                    self.oe.execute('cp -fp /usr/cache/shadow /storage/.cache/shadow')
+                    readout3 = "Retype password"
+                else:
+                    ssh = subprocess.Popen(["passwd"], shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    readout1 = ssh.stdout.readline()
+                    ssh.stdin.write(newpwd + '\n')
+                    ssh.stdin.flush()
+                    readout2 = ssh.stdout.readline()
+                    ssh.stdin.write(newpwd + '\n')
+                    readout3 = ssh.stdout.readline()
+                if "Bad password" in readout3:
+                    xbmcDialog.ok(self.oe._(32220).encode('utf-8'), self.oe._(32221).encode('utf-8'))
+                    self.oe.dbg_log('system::do_sshpasswd', 'exit_function password too weak', 0)
+                    return
+                elif "Retype password" in readout3:
+                    xbmcDialog.ok(self.oe._(32222).encode('utf-8'), self.oe._(32223).encode('utf-8'))
+                    SSHchange = True
+                else:
+                    xbmcDialog.ok(self.oe._(32224).encode('utf-8'), self.oe._(32225).encode('utf-8'))
+                self.oe.dbg_log('system::do_sshpasswd', 'exit_function', 0)
+            else:
+                self.oe.dbg_log('system::do_sshpasswd', 'user_cancelled', 0)
+            return SSHchange
+        except Exception, e:
+            self.oe.dbg_log('system::do_sshpasswd', 'ERROR: (' + repr(e) + ')')
