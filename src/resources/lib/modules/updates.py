@@ -290,7 +290,7 @@ class updates:
             dtname = self.oe.get_dtname()
             if dtname == 'unknown':
                 xbmcDialog = xbmcgui.Dialog()
-                xbmcDialog.notification('CoreELEC DT-ID not found', ' Please update /flash/dtb.img!', xbmcgui.NOTIFICATION_WARNING, 30000)
+                xbmcDialog.notification('masQelec DT-ID not found', ' Please update /flash/dtb.img!', xbmcgui.NOTIFICATION_WARNING, 30000)
             return dtname
         else:
             self.oe.dbg_log('updates::get_hardware_flags', 'Project is %s, no hardware flag available' % self.oe.PROJECT, 0)
